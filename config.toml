@@ -1,7 +1,33 @@
-[host]
-"https://cf.ai-pixel.online/" = 1
-"https://ai-pixel.online/" = 2
-"https://api.ai-pixel.online/" = 3
-[path]
-login = "/login"
-usage = "/usage"
+[server]
+host = "127.0.0.1"
+port = 8080
+public_url = "https://usage.example.com"
+secure_cookie = true
+
+[analysis]
+timezone = "Asia/Shanghai"
+sync_interval = "1m"
+sync_overlap = "5m"
+preferred_host_probe_interval = "5m"
+
+[auth]
+session_ttl = "24h"
+
+[[host]]
+url = "https://cf.ai-pixel.online/"
+priority = 1
+
+[[host]]
+url = "https://ai-pixel.online/"
+priority = 2
+
+[[host]]
+url = "https://api.ai-pixel.online/"
+priority = 3
+
+[[account]]
+id = "primary"
+name = "主账户"
+email_env = "user1"
+password_env = "password1"
+enabled = true
