@@ -22,16 +22,16 @@ type Comparison struct {
 	Credit, Debit, Net float64
 }
 type Bucket struct {
-	Start                     time.Time `json:"start"`
-	Requests                  int64     `json:"requests"`
-	InputTokens  int64 `json:"input_tokens"`
-	OutputTokens int64 `json:"output_tokens"`
-	ActualCost                float64 `json:"actual_cost"`
-	Credit float64 `json:"credit"`
-	Debit  float64 `json:"debit"`
-	Net    float64 `json:"net"`
-	Yesterday                 *Comparison `json:"yesterday"`
-	LastWeek                  *Comparison `json:"last_week"`
+	Start        time.Time   `json:"start"`
+	Requests     int64       `json:"requests"`
+	InputTokens  int64       `json:"input_tokens"`
+	OutputTokens int64       `json:"output_tokens"`
+	ActualCost   float64     `json:"actual_cost"`
+	Credit       float64     `json:"credit"`
+	Debit        float64     `json:"debit"`
+	Net          float64     `json:"net"`
+	Yesterday    *Comparison `json:"yesterday"`
+	LastWeek     *Comparison `json:"last_week"`
 }
 type Overview struct {
 	Buckets []Bucket `json:"buckets"`

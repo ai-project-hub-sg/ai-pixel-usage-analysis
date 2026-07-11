@@ -1,11 +1,13 @@
 # 打包与部署
 
 ~~~powershell
-pwsh -File scripts/build.ps1 test
-pwsh -File scripts/build.ps1 build-linux
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 test
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 build
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 build-linux
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 verify
 ~~~
 
-脚本构建 React 后使用 CGO_ENABLED=0、GOOS=linux、GOARCH=amd64 生成 dist/ai-pixel-usage-analysis-linux-amd64。Node 是构建依赖，服务器不需要 Node 或 SQLite 命令。
+脚本构建 React 后使用 CGO_ENABLED=0、GOOS=linux、GOARCH=amd64 生成 dist/ai-pixel-usage-analysis-linux-amd64。`verify` 还会启动真实 Windows 二进制，使用临时配置、临时 `.env` 和临时 SQLite 轮询 `/health/ready`，结束后清理进程与临时目录。Node 是构建依赖，服务器不需要 Node 或 SQLite 命令。
 
 部署可执行文件、config.toml、权限 0600 的 .env 和可写 SQLite 数据目录。若 .env 缺少 DASHBOARD_USERNAME 或 DASHBOARD_PASSWORD，服务生成缺失值并原子写回，管理员直接读取文件，日志不打印值。
 

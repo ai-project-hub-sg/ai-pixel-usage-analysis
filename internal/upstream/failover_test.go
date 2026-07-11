@@ -7,18 +7,40 @@ import (
 )
 
 type fakeAPI struct {
-	loginErr error
-	usageErr error
-	logins   int
+	loginErr     error
+	usageErr     error
+	logins       int
+	requireLogin bool
+	logged       bool
 }
 
-func (f *fakeAPI) Login(context.Context) error   { f.logins++; return f.loginErr }
+func (f *fakeAPI) Login(context.Context) error {
+	f.logins++
+	if f.loginErr == nil {
+		f.logged = true
+	}
+	return f.loginErr
+}
 func (f *fakeAPI) Refresh(context.Context) error { return nil }
 func (f *fakeAPI) ListUsage(context.Context, UsageQuery) (Page[UsageRecord], error) {
+	if f.requireLogin && !f.logged {
+		return Page[UsageRecord]{}, &Error{Kind: ErrorAuth, Status: 401, Err: errors.New("missing token")}
+	}
 	return Page[UsageRecord]{}, f.usageErr
 }
 func (f *fakeAPI) ListLedger(context.Context, LedgerQuery) (Page[LedgerEntry], error) {
 	return Page[LedgerEntry]{}, nil
+}
+
+func TestFailoverAuthenticatesBeforeFirstRequest(t *testing.T) {
+	api := &fakeAPI{requireLogin: true}
+	f := NewFailover([]Endpoint{{URL: "primary", API: api}})
+	if _, err := f.ListUsage(context.Background(), UsageQuery{}); err != nil {
+		t.Fatal(err)
+	}
+	if api.logins != 1 {
+		t.Fatalf("logins=%d", api.logins)
+	}
 }
 
 func TestFailoverMovesToNextHostOnServerError(t *testing.T) {

@@ -16,9 +16,9 @@ export const api = {
   login: (username: string, password: string) =>
     request("/api/auth/login", { method: "POST", body: JSON.stringify({ username, password }) }),
   logout: () => request("/api/auth/logout", { method: "POST", headers: { Origin: window.location.origin } }),
-  overview: (query: URLSearchParams) => request<Overview>(`/api/overview?${query}`)
-  ,usage: (query: URLSearchParams) => request<UsageRow[]>(`/api/usage/records?${query}`)
-  ,ledger: (query: URLSearchParams) => request<LedgerRow[]>(`/api/ledger/entries?${query}`)
+  overview: (query: URLSearchParams, signal?: AbortSignal) => request<Overview>(`/api/overview?${query}`, { signal })
+  ,usage: (query: URLSearchParams, signal?: AbortSignal) => request<UsageRow[]>(`/api/usage/records?${query}`, { signal })
+  ,ledger: (query: URLSearchParams, signal?: AbortSignal) => request<LedgerRow[]>(`/api/ledger/entries?${query}`, { signal })
   ,accounts: () => request<AccountStatus[]>("/api/accounts/status")
   ,sync: (id: string) => request(`/api/accounts/${encodeURIComponent(id)}/sync`, { method:"POST", headers:{ Origin:window.location.origin } })
 };

@@ -17,11 +17,20 @@ func (s *server) login(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 400, "invalid_request", "invalid request")
 		return
 	}
+	key := loginLimitKey(r, input.Username)
+	now := s.deps.Clock.Now()
+	if s.loginLimiter.blocked(key, now) {
+		w.Header().Set("Retry-After", "900")
+		writeError(w, http.StatusTooManyRequests, "login_rate_limited", "too many login attempts")
+		return
+	}
 	session, err := s.deps.Auth.Login(r.Context(), input.Username, input.Password)
 	if err != nil {
+		s.loginLimiter.fail(key, now)
 		writeError(w, 401, "invalid_credentials", "invalid username or password")
 		return
 	}
+	s.loginLimiter.reset(key)
 	http.SetCookie(w, &http.Cookie{Name: sessionCookie, Value: session.Token, Path: "/", Expires: session.ExpiresAt, MaxAge: int((24 * time.Hour).Seconds()), HttpOnly: true, Secure: s.deps.SecureCookie, SameSite: http.SameSiteLaxMode})
 	writeJSON(w, 200, map[string]any{"expires_at": session.ExpiresAt})
 }

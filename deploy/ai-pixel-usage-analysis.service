@@ -1,0 +1,22 @@
+[Unit]
+Description=AI Pixel Usage Analysis
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ai-pixel
+Group=ai-pixel
+WorkingDirectory=/opt/ai-pixel-usage-analysis
+ExecStart=/opt/ai-pixel-usage-analysis/ai-pixel-usage-analysis -config config.toml -env .env -database data/analysis.db
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/ai-pixel-usage-analysis/data /opt/ai-pixel-usage-analysis/.env
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

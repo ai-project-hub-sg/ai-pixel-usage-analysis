@@ -80,3 +80,38 @@ func TestRouterProtectsAnalyticsAndSetsSecureSession(t *testing.T) {
 		t.Fatalf("origin=%d", logout.Code)
 	}
 }
+
+func TestLoginRateLimitUsesSourceAndUsername(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "rate-limit.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	clock := testClock{now: time.Date(2026, 7, 11, 0, 0, 0, 0, time.UTC)}
+	authService := auth.NewService(db, clock)
+	if _, err = authService.SyncDashboardUser(context.Background(), secrets.DashboardCredentials{Username: "admin", Password: "password-123"}); err != nil {
+		t.Fatal(err)
+	}
+	router := NewRouter(Dependencies{Auth: authService, Analytics: analytics.NewService(db, time.UTC), Clock: clock})
+	body, _ := json.Marshal(map[string]string{"username": "admin", "password": "wrong"})
+	for attempt := 1; attempt <= 6; attempt++ {
+		req := httptest.NewRequest(http.MethodPost, "/api/auth/login", bytes.NewReader(body))
+		req.RemoteAddr = "203.0.113.10:4567"
+		response := httptest.NewRecorder()
+		router.ServeHTTP(response, req)
+		want := http.StatusUnauthorized
+		if attempt == 6 {
+			want = http.StatusTooManyRequests
+		}
+		if response.Code != want {
+			t.Fatalf("attempt %d status=%d body=%s", attempt, response.Code, response.Body.String())
+		}
+	}
+	other := httptest.NewRequest(http.MethodPost, "/api/auth/login", bytes.NewReader(body))
+	other.RemoteAddr = "203.0.113.11:4567"
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, other)
+	if response.Code != http.StatusUnauthorized {
+		t.Fatalf("other source status=%d", response.Code)
+	}
+}

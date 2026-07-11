@@ -1,0 +1,6 @@
+button,input,select{font:inherit}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #84adff;outline-offset:2px}
+.global-filters{display:flex;gap:14px;margin:-14px 0 26px}.global-filters label{display:grid;gap:7px;color:var(--muted);font-size:12px;min-width:190px}.global-filters select{height:42px;border:1px solid #cbd8e2;background:#fff;border-radius:8px;padding:0 11px;color:var(--ink)}
+.status-notice{margin:-8px 0 28px;padding:12px 15px;border:1px solid #fedf89;border-radius:9px;background:#fffaeb;color:#93370d}
+.filter-bar{flex-wrap:wrap}.notice{padding:12px;border-radius:8px;margin-bottom:18px}.notice.success{background:#ecfdf3;color:#067647}.notice button{margin-left:12px}
+.details-button{border:0;background:transparent;color:var(--blue);padding:8px;text-decoration:underline}.metadata-row td{background:#f8fafc}.metadata-row pre{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 0 0;color:#344054}
+@media(max-width:760px){.global-filters{display:grid}.global-filters label{min-width:0}.sidebar{display:grid;grid-template-columns:1fr auto}.sidebar nav{grid-column:1/-1}.sidebar-user{display:flex;margin:0;border:0;padding:0}.sidebar-user>span,.sidebar-user strong{display:none}.sidebar-user button{min-height:44px;color:#d8e3ee;padding:0 10px}}

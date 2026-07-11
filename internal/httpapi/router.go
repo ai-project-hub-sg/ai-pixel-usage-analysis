@@ -26,11 +26,12 @@ type Dependencies struct {
 type server struct {
 	deps         Dependencies
 	publicOrigin string
+	loginLimiter *loginLimiter
 }
 
 func NewRouter(deps Dependencies) http.Handler {
 	u, _ := url.Parse(deps.PublicURL)
-	s := &server{deps: deps}
+	s := &server{deps: deps, loginLimiter: newLoginLimiter(5, 15*time.Minute)}
 	if u != nil {
 		s.publicOrigin = u.Scheme + "://" + u.Host
 	}

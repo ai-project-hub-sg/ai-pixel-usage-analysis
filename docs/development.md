@@ -3,10 +3,10 @@
 使用 Go 1.25、Node.js 24 和 npm 11；Node 只用于构建。每项行为先写失败测试，再最小实现并验证绿色。Go 使用表驱动、httptest 和临时 SQLite；前端使用 Vitest/Testing Library；关键流程使用 Playwright。
 
 ~~~powershell
-pwsh -File scripts/build.ps1 test
-pwsh -File scripts/build.ps1 build
-pwsh -File scripts/build.ps1 build-linux
-pwsh -File scripts/build.ps1 verify
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 test
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 build
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 build-linux
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 verify
 ~~~
 
 - Go 文件单一职责，错误不得包含秘密。

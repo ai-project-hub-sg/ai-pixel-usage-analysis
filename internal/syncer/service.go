@@ -21,12 +21,22 @@ func NewService(repo *Repository, clients map[string]upstream.API, location *tim
 	return &Service{repo: repo, clients: clients, location: location, clock: clock, overlap: overlap}
 }
 
-func (s *Service) SyncAccount(ctx context.Context, accountID string) error {
+func (s *Service) SyncAccount(ctx context.Context, accountID string) (syncErr error) {
 	client, ok := s.clients[accountID]
 	if !ok {
 		return fmt.Errorf("unknown account %q", accountID)
 	}
 	end := s.clock.Now().UTC()
+	defer func() {
+		host := ""
+		if reporter, ok := client.(interface{ CurrentHost() string }); ok {
+			host = reporter.CurrentHost()
+		}
+		statusErr := s.repo.RecordAccountSync(context.WithoutCancel(ctx), accountID, host, end, syncErr)
+		if syncErr == nil && statusErr != nil {
+			syncErr = statusErr
+		}
+	}()
 	for _, dataType := range []string{"usage", "ledger"} {
 		start, exists, err := s.repo.Cursor(ctx, accountID, dataType)
 		if err != nil {

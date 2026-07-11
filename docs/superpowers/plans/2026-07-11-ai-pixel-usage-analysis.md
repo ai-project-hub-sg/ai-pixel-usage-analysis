@@ -882,16 +882,16 @@ Nginx must redirect HTTP to HTTPS, proxy to `127.0.0.1:8080`, set `Host`, `X-Rea
 README and packaging docs must include exact commands:
 
 ```powershell
-pwsh -File scripts/build.ps1 test
-pwsh -File scripts/build.ps1 build
-pwsh -File scripts/build.ps1 build-linux
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 test
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 build
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 build-linux
 ```
 
 Document the three deployed files/directories: executable, `config.toml`, `.env`, plus the writable SQLite data path. State that Node is a build dependency only and Nginx is external server infrastructure.
 
 - [ ] **Step 3: Add a packaging smoke target**
 
-`pwsh -File scripts/build.ps1 verify` must run frontend tests/build, Go tests, vet, Linux build, start a native Windows binary against a temporary config/database, poll `/health/ready`, and stop it cleanly. The Linux artifact is compiled separately and is not executed on Windows.
+`powershell -ExecutionPolicy Bypass -File scripts/build.ps1 verify` must run frontend tests/build, Go tests, vet, Linux build, start a native Windows binary against a temporary config/database, poll `/health/ready`, and stop it cleanly. The Linux artifact is compiled separately and is not executed on Windows.
 
 - [ ] **Step 4: Verify documentation and packaging files**
 
@@ -947,7 +947,7 @@ Pop-Location
 go test ./...
 go test -race ./internal/auth ./internal/syncer ./internal/analytics ./internal/httpapi
 go vet ./...
-pwsh -File scripts/build.ps1 build-linux
+powershell -ExecutionPolicy Bypass -File scripts/build.ps1 build-linux
 ```
 
 Expected: all frontend tests, E2E scenarios, Go tests, race checks, vet and Linux build exit 0.

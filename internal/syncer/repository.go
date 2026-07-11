@@ -22,6 +22,20 @@ func (r *Repository) UpsertAccount(ctx context.Context, id, name string, enabled
 	return err
 }
 
+func (r *Repository) RecordAccountSync(ctx context.Context, accountID, currentHost string, at time.Time, syncErr error) error {
+	now := at.UTC().Format(time.RFC3339Nano)
+	if syncErr == nil {
+		_, err := r.db.ExecContext(ctx, `UPDATE accounts SET current_host=?,last_sync_at=?,last_error=NULL,updated_at=? WHERE id=?`, currentHost, now, now, accountID)
+		return err
+	}
+	message := syncErr.Error()
+	if len(message) > 500 {
+		message = message[:500]
+	}
+	_, err := r.db.ExecContext(ctx, `UPDATE accounts SET current_host=?,last_error=?,updated_at=? WHERE id=?`, currentHost, message, now, accountID)
+	return err
+}
+
 func (r *Repository) Cursor(ctx context.Context, accountID, dataType string) (time.Time, bool, error) {
 	var raw string
 	err := r.db.QueryRowContext(ctx, `SELECT cursor_at FROM sync_cursors WHERE account_id=? AND data_type=?`, accountID, dataType).Scan(&raw)
