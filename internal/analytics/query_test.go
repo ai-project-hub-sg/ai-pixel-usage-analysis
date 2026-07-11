@@ -59,3 +59,29 @@ func TestOverviewSeparatesAccountsDirectionsAndComparisons(t *testing.T) {
 		t.Fatalf("single=%#v", single)
 	}
 }
+
+func TestLedgerEntriesFiltersRawTypeAndRemark(t *testing.T) {
+	db, err := store.Open(filepath.Join(t.TempDir(), "ledger.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	now := time.Now().UTC()
+	_, err = db.Exec(`INSERT INTO accounts(id,name,enabled,created_at,updated_at) VALUES('a','A',1,?,?)`, now.Format(time.RFC3339Nano), now.Format(time.RFC3339Nano))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for id, values := range []struct{ reason, remark string }{{"usage_charge", "request req-7 model"}, {"redeem_code", "spring bonus"}} {
+		_, err = db.Exec(`INSERT INTO balance_ledger_entries(account_id,upstream_id,direction,amount,balance_after,reason,business_category,remark_text,search_text,extracted_json,metadata_json,created_at,raw_json) VALUES('a',?,'debit','1','9',?,'usage',?,?, '{}','{}',?,'{}')`, id+1, values.reason, values.remark, values.remark, now.Format(time.RFC3339Nano))
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	rows, err := NewService(db, time.UTC).LedgerEntries(context.Background(), Filters{Reason: "usage_charge", Remark: "REQ-7", Start: now.Add(-time.Hour), End: now.Add(time.Hour)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(rows) != 1 || rows[0].Reason != "usage_charge" {
+		t.Fatalf("rows=%#v", rows)
+	}
+}

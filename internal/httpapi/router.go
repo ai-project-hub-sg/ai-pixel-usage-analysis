@@ -21,6 +21,7 @@ type Dependencies struct {
 	PublicURL    string
 	SecureCookie bool
 	Static       http.Handler
+	TriggerSync  func(context.Context, string) error
 }
 type server struct {
 	deps         Dependencies
@@ -40,6 +41,10 @@ func NewRouter(deps Dependencies) http.Handler {
 	mux.Handle("POST /api/auth/logout", s.protected(http.HandlerFunc(s.logout), true))
 	mux.Handle("GET /api/auth/session", s.protected(http.HandlerFunc(s.session), false))
 	mux.Handle("GET /api/overview", s.protected(http.HandlerFunc(s.overview), false))
+	mux.Handle("GET /api/usage/records", s.protected(http.HandlerFunc(s.usageRecords), false))
+	mux.Handle("GET /api/ledger/entries", s.protected(http.HandlerFunc(s.ledgerEntries), false))
+	mux.Handle("GET /api/accounts/status", s.protected(http.HandlerFunc(s.accountStatuses), false))
+	mux.Handle("POST /api/accounts/{id}/sync", s.protected(http.HandlerFunc(s.triggerSync), true))
 	if deps.Static != nil {
 		mux.Handle("GET /", deps.Static)
 	}

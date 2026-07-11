@@ -87,7 +87,7 @@ func Run(ctx context.Context, opts Options) error {
 	interval, _ := time.ParseDuration(cfg.Analysis.SyncInterval)
 	syncService := syncer.NewService(repo, clients, location, clock, overlap)
 	scheduler := syncer.NewScheduler(syncService, ids, interval)
-	router := httpapi.NewRouter(httpapi.Dependencies{Auth: authService, Analytics: analytics.NewService(db, location), Clock: clock, PublicURL: cfg.Server.PublicURL, SecureCookie: cfg.Server.SecureCookie, Static: webui.Handler()})
+	router := httpapi.NewRouter(httpapi.Dependencies{Auth: authService, Analytics: analytics.NewService(db, location), Clock: clock, PublicURL: cfg.Server.PublicURL, SecureCookie: cfg.Server.SecureCookie, Static: webui.Handler(), TriggerSync: scheduler.Trigger})
 	server := &http.Server{Addr: cfg.Server.Address(), Handler: router, ReadHeaderTimeout: 10 * time.Second}
 	go scheduler.Start(ctx)
 	for _, id := range ids {

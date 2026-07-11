@@ -1,4 +1,4 @@
-import type { Overview, Session } from "./types";
+import type { AccountStatus, LedgerRow, Overview, Session, UsageRow } from "./types";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
@@ -17,4 +17,8 @@ export const api = {
     request("/api/auth/login", { method: "POST", body: JSON.stringify({ username, password }) }),
   logout: () => request("/api/auth/logout", { method: "POST", headers: { Origin: window.location.origin } }),
   overview: (query: URLSearchParams) => request<Overview>(`/api/overview?${query}`)
+  ,usage: (query: URLSearchParams) => request<UsageRow[]>(`/api/usage/records?${query}`)
+  ,ledger: (query: URLSearchParams) => request<LedgerRow[]>(`/api/ledger/entries?${query}`)
+  ,accounts: () => request<AccountStatus[]>("/api/accounts/status")
+  ,sync: (id: string) => request(`/api/accounts/${encodeURIComponent(id)}/sync`, { method:"POST", headers:{ Origin:window.location.origin } })
 };

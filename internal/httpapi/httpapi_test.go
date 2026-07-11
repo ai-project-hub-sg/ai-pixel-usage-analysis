@@ -63,6 +63,13 @@ func TestRouterProtectsAnalyticsAndSetsSecureSession(t *testing.T) {
 	if authorized.Code != 200 {
 		t.Fatalf("authorized=%d body=%s", authorized.Code, authorized.Body.String())
 	}
+	ledgerReq := httptest.NewRequest(http.MethodGet, "/api/ledger/entries?start=2026-07-10T00:00:00Z&end=2026-07-12T00:00:00Z&reason=usage_charge&remark=req", nil)
+	ledgerReq.AddCookie(cookies[0])
+	ledger := httptest.NewRecorder()
+	router.ServeHTTP(ledger, ledgerReq)
+	if ledger.Code != http.StatusOK {
+		t.Fatalf("ledger=%d body=%s", ledger.Code, ledger.Body.String())
+	}
 
 	logoutReq := httptest.NewRequest(http.MethodPost, "/api/auth/logout", nil)
 	logoutReq.AddCookie(cookies[0])
