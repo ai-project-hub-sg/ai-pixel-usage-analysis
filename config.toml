@@ -1,0 +1,7 @@
+[host]
+"https://cf.ai-pixel.online/" = 1
+"https://ai-pixel.online/" = 2
+"https://api.ai-pixel.online/" = 3
+[path]
+login = "/login"
+usage = "/usage"
